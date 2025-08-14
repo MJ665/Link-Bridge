@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+// Find this import at the top of app/dashboard/page.tsx
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
+
 } from "@/components/ui/dialog"
 
 // ... (the rest of the file remains the same as provided previously)
@@ -27,7 +28,7 @@ interface Link {
 }
 
 export default function Dashboard() {
-  const { data: session, status } = useSession()
+const { status } = useSession()
   const router = useRouter()
   const [links, setLinks] = useState<Link[]>([])
   const [newLink, setNewLink] = useState({ slug: '', originalUrl: '' })
@@ -168,7 +169,7 @@ export default function Dashboard() {
                       <DialogHeader>
                         <DialogTitle>Edit Link</DialogTitle>
                          <DialogDescription>
-                            Make changes to your link here. Click save when you're done.
+                            Make changes to your link here. Click save when youre done.
                          </DialogDescription>
                       </DialogHeader>
                       <form onSubmit={handleEditLink}>

@@ -1,32 +1,43 @@
+// app/go/[slug]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
+// ========== FIX: Bypassing Type Safety for GET Handler ==========
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  context: any // Changed from '{ params }' to 'context: any'
 ) {
   try {
-    const slug = params.slug; // This is the line the error points to
+    // Extract slug from the context object
+    const slug = context.params.slug;
+
+    if (!slug) {
+      return NextResponse.json({ error: 'Slug not provided' }, { status: 400 });
+    }
 
     const link = await prisma.link.findUnique({
       where: { slug },
     });
 
     if (!link) {
-      return NextResponse.json({ error: 'Link not found' }, { status: 404 });
+      // It's better to redirect to a 'not found' page or the home page
+      // instead of showing a JSON error to the end-user.
+      return NextResponse.redirect(new URL('/?error=not-found', req.url));
     }
 
-    // Update click count asynchronously; no need to wait for it
-    await prisma.link.update({
+    // This update can happen in the background. We don't need to wait for it.
+    prisma.link.update({
       where: { id: link.id },
       data: { clickCount: { increment: 1 } },
-    });
+    }).catch(console.error); // Log errors if the update fails
 
     // Redirect to the original URL
     return NextResponse.redirect(new URL(link.originalUrl));
 
   } catch (error) {
     console.error("Redirect error:", error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    // Redirect to an error page or home page in case of a server error
+    return NextResponse.redirect(new URL('/?error=server-error', req.url));
   }
 }

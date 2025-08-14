@@ -1,10 +1,13 @@
+// app/api/links/route.ts
+
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import { nanoid } from 'nanoid'
 
-export async function GET(req: NextRequest) {
+// Prefix 'req' with an underscore to mark it as unused
+export async function GET() {
   const session = await getServerSession(authOptions)
 
   if (!session || !session.user?.email) {
@@ -44,7 +47,8 @@ export async function POST(req: NextRequest) {
 
   try {
     new URL(originalUrl);
-  } catch (error) {
+  } catch (e) { // Use the error variable
+    console.error("Invalid URL format:", e);
     return new NextResponse(JSON.stringify({ error: 'Invalid URL format' }), { status: 400 })
   }
 
@@ -59,7 +63,8 @@ export async function POST(req: NextRequest) {
       },
     })
     return new NextResponse(JSON.stringify(newLink), { status: 201 })
-  } catch (error) {
+  } catch (e) { // Use the error variable
+    console.error("Slug creation failed:", e);
     return new NextResponse(JSON.stringify({ error: 'Slug already taken' }), { status: 409 })
   }
 }
